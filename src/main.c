@@ -2,6 +2,7 @@
 #include<stdlib.h>
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
+#include"shader.h"
 
 int width = 800;
 int height = 600;
@@ -37,12 +38,16 @@ int main(int argc,char* argv[])
 		exit(-1);
 	}
 
+	char *shaderTestFile = loadShaderFile("./SHADERS/vertexShader.glsl");
+
 	//Start window
 	glViewport(0,0,width,height);
 
 	//Set events
 	glfwSetFramebufferSizeCallback(window,resizeWindow);
 
+
+	//main loop
 	while(!glfwWindowShouldClose(window))
 	{
 		glfwSwapBuffers(window);
