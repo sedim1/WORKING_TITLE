@@ -56,8 +56,8 @@ int main(int argc,char* argv[])
 
 	//LOAD VBO, VAO 
 	unsigned int VBO, VAO;
-	glGenBuffers(1,&VBO);
 	glGenVertexArrays(1,&VAO);
+	glGenBuffers(1,&VBO);
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER,VBO);
 	glBufferData(GL_ARRAY_BUFFER,sizeof(vertices),vertices,GL_STATIC_DRAW);//Pass the data to the buffer
