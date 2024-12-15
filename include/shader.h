@@ -13,11 +13,7 @@ typedef struct nod
 	struct nod *next;
 }TShader;
 
-typedef struct
-{
-	unsigned int id; //reference to the shader program
-	TShader* sources;
-}shaderProgram;
+typedef unsigned int shaderProgram;
 
 //Shader Program creation functions
 TShader *createShader(char *filePath,GLenum shaderType);

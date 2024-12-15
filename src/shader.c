@@ -76,33 +76,32 @@ shaderProgram createShaderProgram(char *shaderSources[],GLenum types[],int n)
 {
 	int success;
 	char infoLog[512];
-
 	shaderProgram program;
-	program.id = -1;
-	program.sources = NULL;
+	TShader *sources = NULL;
 	//Load shaders
 	for(int i = 0;i<n;i++)
 	{
-		addShader(&program.sources,shaderSources[i],types[i]);
+		addShader(&sources,shaderSources[i],types[i]);
 	}
 	//Attach the shaders to the shader Program
-	program.id = glCreateProgram();
-	TShader *current = program.sources;
+	program = glCreateProgram();
+	TShader *current = sources;
 	while(current->next)
 	{
-		glAttachShader(program.id,current->source);
+		glAttachShader(program,current->source);
 		current = current->next;
 	}
-	glLinkProgram(program.id);
+	glLinkProgram(program);
 	//Check if the shader was created succesfully
-	glGetProgramiv(program.id,GL_LINK_STATUS,&success);
+	glGetProgramiv(program,GL_LINK_STATUS,&success);
 	if(!success)
 	{
-		glGetProgramInfoLog(program.id,512,NULL,infoLog);
+		glGetProgramInfoLog(program,512,NULL,infoLog);
 		printf("ERROR::LINKING_SHADER_PROGRAM::\n%s",infoLog);
 		exit(-1);
 	}
 	printf("::SHADER PROGRAM CREATED SUCCESFULLY!!::\n");
+	deleteShaders(&sources);
 	return program;
 }
 
@@ -124,5 +123,5 @@ void deleteShaders(TShader **shaders)
 
 void deleteShaderProgram(shaderProgram *program)
 {
-	glDeleteProgram(program->id);
+	glDeleteProgram(*program);
 }

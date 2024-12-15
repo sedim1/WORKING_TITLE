@@ -14,11 +14,11 @@ void initializeMatrix(Matrix4x4 matrix)
 	}
 }
 
-void scale(Matrix4x4 matrix, VECTOR4D S)
+void scale(Matrix4x4 matrix, VECTOR3D *S)
 {
-	matrix[0][0] = S.x;
-	matrix[1][1] = S.y;
-	matrix[2][2] = S.z;
+	matrix[0][0] = S->x;
+	matrix[1][1] = S->y;
+	matrix[2][2] = S->z;
 }
 
 void scalarScale(Matrix4x4 matrix, float S)
@@ -28,11 +28,11 @@ void scalarScale(Matrix4x4 matrix, float S)
 	matrix[2][2] = S;
 }
 
-void translate(Matrix4x4 matrix, VECTOR4D T)
+void translate(Matrix4x4 matrix, VECTOR3D *T)
 {
-	matrix[3][0] = T.x;
-	matrix[3][1] = T.y;
-	matrix[3][2] = T.z;
+	matrix[3][0] = T->x;
+	matrix[3][1] = T->y;
+	matrix[3][2] = T->z;
 }
 
 void rotateX(Matrix4x4 matrix, float degrees)
@@ -74,4 +74,15 @@ void matrixMultiplication(Matrix4x4 R,Matrix4x4 A,Matrix4x4 B)
 		for(int j = 0;j < 4;j++)
 			for(int k = 0;k < 4;k++)
 				R[i][j] += (A[i][k] * B[k][j]); 
+}
+
+void printMatrix(Matrix4x4 matrix)
+{
+	for(int i = 0;i < 4;i++)
+	{
+		for(int j = 0; j < 4;j++)
+			printf("%f ",matrix[i][j]);
+
+		printf("\n");
+	}
 }

@@ -8,16 +8,16 @@ typedef struct
 	float x;
 	float y;
 	float z;
-	float w; //VALUE RANGE: 0 - 1
-}VECTOR4D;
+}VECTOR3D;
 
 //4D VECTOR CREATION AND OPERATIONS
-VECTOR4D vector4D(float nx,float ny,float nz, float nw);
-VECTOR4D sumVector(VECTOR4D A,VECTOR4D B);
-VECTOR4D substractVector(VECTOR4D A, VECTOR4D B);
-VECTOR4D scalar(VECTOR4D A,float C);
-float lenght(VECTOR4D A);
-VECTOR4D normalized(VECTOR4D A);
-VECTOR4D crossProduct(VECTOR4D A,VECTOR4D B);
+VECTOR3D vector3D(float nx,float ny,float nz);
+VECTOR3D sumVector(VECTOR3D *A,VECTOR3D *B);
+VECTOR3D substractVector(VECTOR3D *A, VECTOR3D *B);
+VECTOR3D scalar(VECTOR3D *A,float C);
+float lenght(VECTOR3D *A);
+VECTOR3D normalized(VECTOR3D *A);
+VECTOR3D crossProduct(VECTOR3D *A,VECTOR3D *B);
+float dotProduct(VECTOR3D *A,VECTOR3D *B);
 
 #endif

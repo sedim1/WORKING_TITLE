@@ -1,62 +1,66 @@
 #include"vector.h"
 
-VECTOR4D vector4D(float nx,float ny,float nz,float nw)
+VECTOR3D vector3D(float nx,float ny,float nz)
 {
-	VECTOR4D new;
+	VECTOR3D new;
 	new.x = nx;
 	new.y = ny;
 	new.z = nz;
-	new.w = nw;
 	return new;
 }
 
-VECTOR4D sumVector(VECTOR4D A,VECTOR4D B)
+VECTOR3D sumVector(VECTOR3D *A,VECTOR3D *B)
 {
-	VECTOR4D new;
-	new.x = A.x + B.x;
-	new.x = A.y + B.y;
-	new.x = A.z + B.z;
+	VECTOR3D new;
+	new.x = A->x + B->x;
+	new.y = A->y + B->y;
+	new.z = A->z + B->z;
 	return new;
 }
 
-VECTOR4D substractVector(VECTOR4D A, VECTOR4D B)
+VECTOR3D substractVector(VECTOR3D *A, VECTOR3D *B)
 {
-	VECTOR4D new;
-	new.x = A.x - B.x;
-	new.x = A.y - B.y;
-	new.x = A.z - B.z;
+	VECTOR3D new;
+	new.x = A->x - B->x;
+	new.y = A->y - B->y;
+	new.z = A->z - B->z;
 	return new;
 }
 
-VECTOR4D scalar(VECTOR4D A,float C)
+VECTOR3D scalar(VECTOR3D *A,float C)
 {
-	VECTOR4D new;
-	new.x = C * A.x;
-	new.x = C * A.y;
-	new.x = C * A.z;
+	VECTOR3D new;
+	new.x = C * A->x;
+	new.y = C * A->y;
+	new.z = C * A->z;
 	return new;
 }
 
-float lenght(VECTOR4D A)
+float lenght(VECTOR3D *A)
 {
-	return sqrt(pow(A.x,2)+pow(A.y,2)+pow(A.z,2));
+	return sqrt(A->x*A->x+A->y*A->y+A->z*A->z);
 }
 
-VECTOR4D normalized(VECTOR4D A)
+VECTOR3D normalized(VECTOR3D *A)
 {
-	VECTOR4D new;
+	VECTOR3D new;
 	float len = lenght(A);
-	new.x = A.x/len;
-	new.x = A.y/len;
-	new.x = A.z/len;
+	new.x = A->x/len;
+	new.y = A->y/len;
+	new.z = A->z/len;
 	return new;
 }
 
-VECTOR4D crossProduct(VECTOR4D A,VECTOR4D B)
+VECTOR3D crossProduct(VECTOR3D *A,VECTOR3D *B)
 {
-	VECTOR4D new;
-	new.x = (A.y * B.z) - (A.z * B.y);
-	new.y = (A.z * B.x) - (A.x * B.z);
-	new.z = (A.x * B.y) - (A.y * B.x);
+	VECTOR3D new;
+	new.x = (A->y * B->z) - (A->z * B->y);
+	new.y = (A->z * B->x) - (A->x * B->z);
+	new.z = (A->x * B->y) - (A->y * B->x);
 	return new;
+}
+
+float dotProduct(VECTOR3D *A,VECTOR3D *B)
+{
+	return ( (A->x * B->x )+( A->y * B->y )+ ( A->z * B->z ) );
 }
