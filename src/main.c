@@ -6,6 +6,7 @@
 #include <cglm/cglm.h>
 #include "radians.h"
 #include "camera.h"
+#include "MESHBUFFER.h"
 
 void resizeWindow(GLFWwindow* win,int w, int h);
 void init();
@@ -23,6 +24,7 @@ GLFWwindow* window;
 GLenum types[2] = {GL_VERTEX_SHADER,GL_FRAGMENT_SHADER};
 char *shaderSources[2] = {"./SHADERS/vertexShader.glsl","./SHADERS/fragmentShader.glsl"};
 
+
 shaderProgram program;
 
 CAMERA camera;
@@ -30,30 +32,14 @@ CAMERA camera;
 mat4 V;
 mat4 P;
 
-
-unsigned int VBO, VAO, EBO;
-
-float vertices[] = {
-	//Vertices
-	0.5f,0.5f,0.0f,  
-	0.5f,-0.5f,0.0f, 
-	-0.5f,-0.5f,0.0f,
-	-0.5f,0.5f, 0.0f, 
-};
-
-unsigned int indices[] ={
-	0,1,3,
-	1,2,3
-};
+MESHBUFFER *cube;
+char* textures[1] = {"./ASSETS/tex1.png"};
 
 int main(int argc,char* argv[])
 {
 	init();
-	//main loop
 	mainLoop();
-
 	end();
-
 	exit(0);
 }
 
@@ -90,18 +76,16 @@ void update()//function for writing the logic here
 	//Update lookat camera
 	updateViewMatrix(&camera,V);
 	
-	//Update uniforms
-	glUniformMatrix4fv(glGetUniformLocation(program,"proj"),1,GL_FALSE,(float*)P);
-	glUniformMatrix4fv(glGetUniformLocation(program,"view"),1,GL_FALSE,(float*)V);
+	//Update matrices
+	updateMatrix4(&program,P,"proj");
+	updateMatrix4(&program,V,"view");
 }
 
 void display()
 {
 	//Render stuff here
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	glBindVertexArray(VAO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,EBO);
-	glDrawElements(GL_TRIANGLES,6,GL_UNSIGNED_INT,0);
+	drawMeshes(cube,&program);
 }
 
 void init()
@@ -134,20 +118,12 @@ void init()
 	//LOAD SHADERS
 	program = createShaderProgram(shaderSources,types,2);
 
-	//LOAD VBO, VAO 
-	glGenVertexArrays(1,&VAO);
-	glGenBuffers(1,&VBO);
-	glGenBuffers(1,&EBO);
-	glBindVertexArray(VAO);
-	glBindBuffer(GL_ARRAY_BUFFER,VBO);
-	glBufferData(GL_ARRAY_BUFFER,sizeof(vertices),vertices,GL_STATIC_DRAW);//Pass the data to the buffer
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER,sizeof(indices),indices,GL_STATIC_DRAW);
-	
-	//Enable atribute to the vertex array
-	glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,3*sizeof(float),(void*)0);
-	glEnableVertexAttribArray(0);
-	
+	//LOAD MESHES
+	cube = loadMeshes("./ASSETS/rubiks.obj",textures);
+
+	if(cube==NULL)
+		exit(-1);
+
 	//Start window
 	glViewport(0,0,width,height);
 
@@ -170,9 +146,7 @@ void init()
 
 void end()
 {
-	glDeleteVertexArrays(1,&VAO);
-	glDeleteBuffers(1,&VBO);
-	glDeleteBuffers(1,&EBO);
 	deleteShaderProgram(&program);
+	deleteMeshes(&cube);
 	glfwTerminate();
 }

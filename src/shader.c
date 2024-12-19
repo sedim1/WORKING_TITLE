@@ -125,3 +125,19 @@ void deleteShaderProgram(shaderProgram *program)
 {
 	glDeleteProgram(*program);
 }
+
+//uniform funcitons
+void updateMatrix4(shaderProgram *program,mat4 matrix,char* name)
+{
+	glUseProgram(*program);
+	int location;
+	//find location and verify if exist
+	if((location = glGetUniformLocation(*program,name))==-1)
+	{
+		printf("UNIFORM %s is not found\n",name);
+		exit(-1);
+	}
+	//Update the matrix
+	glUniformMatrix4fv(location,1,GL_FALSE,(float*)matrix);
+}
+

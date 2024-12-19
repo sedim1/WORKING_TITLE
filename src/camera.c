@@ -6,6 +6,12 @@ void cameraControl(CAMERA *cam,GLFWwindow* window)
 
 	updateFrontVector(cam,window);
 
+	if(glfwGetKey(window,GLFW_KEY_E)==GLFW_PRESS)
+		cam->cameraPos[1]+=cameraSpeed;
+
+	if(glfwGetKey(window,GLFW_KEY_Q)==GLFW_PRESS)
+		cam->cameraPos[1]-=cameraSpeed;
+	
 	if(glfwGetKey(window,GLFW_KEY_W) == GLFW_PRESS)//MOVE FORWARD
 	{
 		//cameraPos += cameraSpeed * cameraFront;

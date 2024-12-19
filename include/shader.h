@@ -5,7 +5,7 @@
 #include<stdio.h>
 #include<string.h>
 #include<stdbool.h>
-
+#include<cglm/cglm.h>
 
 typedef struct nod
 {
@@ -24,5 +24,6 @@ void deleteShaders(TShader **shaders);
 void deleteShaderProgram(shaderProgram *program);
 
 //Shader uniforms
+void updateMatrix4(shaderProgram *program,mat4 matrix,char* name);
 
 #endif
