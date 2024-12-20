@@ -9,10 +9,8 @@ MESHBUFFER* createMesh()
 	if(mesh!=NULL)
 	{
 		mesh->glEnabled = false;
-		mesh->v.buffer=NULL; mesh->v.size=0;
-		mesh->vn.buffer=NULL; mesh->vn.size=0;
-		mesh->vt.buffer=NULL; mesh->vt.size=0;
-		mesh->indices.buffer=NULL; mesh->indices.size=0;
+		mesh->buffer=NULL;
+		mesh->bufferVertices = 0;
 		mesh->next=NULL;
 		printf("Mesh has been allocated succesfully\n");
 	}
@@ -21,18 +19,19 @@ MESHBUFFER* createMesh()
 
 void addMesh(MESHBUFFER** meshes,MESHBUFFER *newMesh)
 {
-	MESHBUFFER* current;
+	MESHBUFFER* aux;
 	if(*meshes==NULL)
 	{
 		*meshes = newMesh;
 	}
 	else
 	{
-		current = *meshes;
-		while(current->next!=NULL)
-			current = current->next;
-		current->next = newMesh;
+		aux=*meshes;
+		while(aux->next)
+			aux=aux->next;
+		aux->next=newMesh;
 	}
+
 	printf("Mesh has been added\n");
 }
 
@@ -47,16 +46,11 @@ void deleteMeshes(MESHBUFFER **meshes)
 		if(current->glEnabled)
 		{
 			glDeleteVertexArrays(1,&current->VAO);
-			glDeleteBuffers(1,&current->VBO[0]);
-			glDeleteBuffers(1,&current->VBO[1]);
-			glDeleteBuffers(1,&current->VBO[2]);
-			glDeleteBuffers(1,&current->EBO);
+			glDeleteBuffers(1,&current->VBO);
 			glDeleteTextures(1,&current->texture);
 		}
-		free(current->v.buffer);
-		free(current->vn.buffer);
-		free(current->vt.buffer);
-		free(current->indices.buffer);
+		if(current->buffer!=NULL)
+			free(current->buffer);
 		del = current;
 		current = current->next;
 		free(del);
@@ -68,32 +62,28 @@ MESHBUFFER* loadMeshes(char* objFile,char** imgPath)
 {
 	MESHBUFFER* meshes = NULL;
 	MESHBUFFER* current = NULL;
-	FILE *fp = fopen(objFile,"r");
 	float x = 0.0f; float y = 0.0f; float z = 0.0f;
 	float u = 0.0f; float v = 0.0f;
-	int vPos = 0; int vnPos = 0; int vtPos = 0; int iPos = 0;
-	unsigned int index[9];
+	float* tempv = NULL; float* tempvt =NULL; float* tempvn = NULL; //They will store all the vertices in the existing obj
+	int totalv =0; int totalvt = 0; int totalvn=0;
+	int currentVpos = 0; int currentVtpos = 0; int currentVnpos = 0;
+	int bufferPos = 0; int vpos =0; int vtpos = 0; int vnpos =0;
+	unsigned int indexv[3], indexvt[3], indexvn[3];
 	int currentImg = 0;
 	char prefix[5];
-	int newSize;
-
-
+	FILE *fp = fopen(objFile,"r");
 	if(fp)
 	{
 		//First round is to check how much space to create for each buffer
 		printf("%s was opened\n",objFile);
-		while(fscanf(fp,"%s",prefix)!=EOF)
+		while(fscanf(fp,"%s",prefix)!=EOF)//First round is for checking how many vertices, vertex normals and vertex texture for each mesh
 		{
 			if(strcmp(prefix,"o")==0)
 			{
 				printf("New object detected!\n");
-				if(current!=NULL)
-				{
-					addMesh(&meshes,current);
-					current=NULL;//Unlink the mesh that as been added
-				}
-				current=createMesh();
-				if(current==NULL)
+				current=NULL;
+				current=createMesh(); //create mesh
+				if(current==NULL) //Ceck if the mesh has been created succesfully
 				{
 					printf("Could not allocate memory for a new mesh");
 					//Delete all meshes that have been created in case a new mesh could not be created
@@ -101,110 +91,139 @@ MESHBUFFER* loadMeshes(char* objFile,char** imgPath)
 					current=NULL;
 					break;
 				}
+				addMesh(&meshes,current);//Add Mesh to the linked list
 			}
 			if(strcmp(prefix,"v")==0)
-				current->v.size+=3;
+				totalv+=3;
 			if(strcmp(prefix,"vn")==0)
-				current->vn.size+=3;
-			if(strcmp(prefix,"vt")==0)
-				current->vt.size+=2;
+				totalvn+=3;
+			if(strcmp(prefix,"vt")==0)	
+				totalvt+=2;
 			if(strcmp(prefix,"f")==0)
-				current->indices.size+=3;
+				current->bufferSize+= (8*3);
 		}
-		//Add last mesh detected
-		if(current!=NULL)
+		if(meshes!=NULL)//if meshes had been succesfully created, start reading the data,
 		{
-			addMesh(&meshes,current);
 			current=NULL;
-		}
+			fseek(fp,0L,SEEK_SET);//return to the start of the file
+			//Allecate memory
+			tempv=(float*)malloc(totalv*sizeof(float));
+			tempvt=(float*)malloc(totalvt*sizeof(float));
+			tempvn=(float*)malloc(totalvn*sizeof(float));
 
-		if(meshes!=NULL)
-		{
-			//2nd round, read the actual buffer for each mesh;
-			fseek(fp,0L,SEEK_SET);
 			while(fscanf(fp,"%s",prefix)!=EOF)
 			{
 				if(strcmp(prefix,"o")==0)
 				{
-					vPos=0; vnPos=0; vtPos=0; iPos=0;
-
-					//Access to the next mesh
-					if(current==NULL)
-					{current=meshes;}
-					else
+					if(current==NULL)//Acces first mesh
 					{
-						//Before passin to the next mesh set up current mesh
+						printf("Passing to first mesh\n");
+						current=meshes;
+					}
+					else
+					{// set up current mesh before accessing the next mesh
+						printf("BufferELements: %d\n",current->bufferSize);
+					 	printf("passing to next mesh\n");
 						setUpMesh(&current,imgPath[currentImg]);
-						current=current->next;//Access to the next mesh
+						printf("Mesh %p is assigned texture: %s\n", (void*)current, imgPath[currentImg]);
+						current=current->next;
 						currentImg++;
 					}
-
-					//Allocate memories for each buffer to the current mesh
-					current->v.buffer=(float*)malloc(sizeof(float)*current->v.size);
-					current->vt.buffer=(float*)malloc(sizeof(float)*current->vt.size);
-					current->vn.buffer=(float*)malloc(sizeof(float)*current->vn.size);
-					current->indices.buffer=(unsigned int*)malloc(sizeof(unsigned int)*current->indices.size);
-					if(current->v.buffer==NULL||current->vt.buffer==NULL||
-							current->vn.buffer==NULL||current->indices.buffer==NULL)
-					{
-						printf("ERR0R::Could not allocate memory for buffers");
-						deleteMeshes(&meshes);
-						break;
-					}
+					printf("Buffer for VBO:\n");
+					bufferPos = 0;
+					current->buffer=(float*)malloc(current->bufferSize*sizeof(float));
 				}
-				if(strcmp(prefix,"v")==0)//Read buffer for vertex positions
+				if(strcmp(prefix,"v")==0)
 				{
 					fscanf(fp,"%f %f %f",&x,&y,&z);
-					current->v.buffer[vPos]=x;
-					current->v.buffer[vPos+1]=y;
-					current->v.buffer[vPos+2]=z;
-					printf("v %f %f %f\n",current->v.buffer[vPos],current->v.buffer[vPos+1],current->v.buffer[vPos+2]);
-					vPos+=3;
+					tempv[currentVpos]=x; tempv[currentVpos+1]=y; tempv[currentVpos+2]=z;
+					//printf("v %f %f %f\n",tempv[currentVpos],tempv[currentVpos+1],tempv[currentVpos+2]);
+					currentVpos+=3;
 				}
-				if(strcmp(prefix,"vt")==0)//Read buffer for texture cordinates
+				if(strcmp(prefix,"vt")==0)
 				{
 					fscanf(fp,"%f %f",&u,&v);
-					current->vt.buffer[vtPos]=u;
-					current->vt.buffer[vtPos+1]=v;
-					printf("vt %f %f\n",current->vt.buffer[vtPos],current->vt.buffer[vtPos+1],current->vt.buffer[vtPos+2]);
-					vtPos+=2;
+					tempvt[currentVtpos]=u; tempvt[currentVtpos+1]=v;
+					//printf("vt %f %f\n",tempvt[currentVtpos],tempvt[currentVtpos+1]);
+					currentVtpos+=2;
 				}
-				if(strcmp(prefix,"vn")==0)//Read buffer for vertex normals
+				if(strcmp(prefix,"vn")==0)
 				{
 					fscanf(fp,"%f %f %f",&x,&y,&z);
-					current->vn.buffer[vnPos]=x;
-					current->vn.buffer[vnPos+1]=y;
-					current->vn.buffer[vnPos+2]=z;
-					printf("vn %f %f %f\n",current->vn.buffer[vnPos],current->vn.buffer[vnPos+1],current->vn.buffer[vnPos+2]);
-					vnPos+=3;
+					tempvn[currentVnpos]=x; tempvn[currentVnpos+1]=y; tempvn[currentVnpos+2]=z;
+					//printf("vn %f %f %f\n",tempvn[vnpos],tempvn[vnpos+1],tempvn[vnpos+2]);
+					currentVnpos+=3;
 				}
-				if(strcmp(prefix,"f")==0)//Read buffers for indices
+				if(strcmp(prefix,"f")==0)
 				{
-					fscanf(fp,"%d/%*d/%*d %d/%*d/%*d %d/%*d/%*d",&index[0], &index[3], &index[6]);
-					current->indices.buffer[iPos]= index[0] - 1; //first vertex index
-					current->indices.buffer[iPos+1]= index[3] - 1;
-					current->indices.buffer[iPos+2]= index[6] - 1;
-					printf("f %d %d %d\n",current->indices.buffer[iPos]+1,current->indices.buffer[iPos+1]+1,current->indices.buffer[iPos+2]+1);
-					iPos+=3;
+					fscanf(fp,"%d/%d/%d %d/%d/%d %d/%d/%d",&indexv[0],&indexvt[0],&indexvn[0],
+							&indexv[1],&indexvt[1],&indexvn[1],&indexv[2],&indexvt[2],&indexvn[2]);
+					//printf("f %d/%d/%d %d/%d/%d %d/%d/%d\n",indexv[0],indexvt[0],indexvn[0],
+						//  	indexv[1],indexvt[1],indexvn[1],indexv[2],indexvt[2],indexvn[2]);
+					for(int i = 0; i < 3; i++)
+					{
+						current->bufferVertices++;
+						//acces the memory position of current indexes of vertex, normals and vt's
+						indexv[i]-=1;indexvt[i]-=1;indexvn[i]-=1;
+						vpos = findVertexPos(indexv[i]);
+						vtpos = findUvPos(indexvt[i]);
+						vnpos = findVertexPos(indexvn[i]);
+						//Insert vertex of indexv i
+						current->buffer[bufferPos]=tempv[vpos]; 
+						current->buffer[bufferPos+1]=tempv[vpos+1];
+						current->buffer[bufferPos+2]=tempv[vpos+2];
+						//printf("::v %f %f %f :: ",current->buffer[bufferPos],current->buffer[bufferPos+1],
+							//	current->buffer[bufferPos+2]);
+						bufferPos+=3;
+						//Insert vertex texture of indexvt i
+						current->buffer[bufferPos]=tempvt[vtpos];
+						current->buffer[bufferPos+1]=tempvt[vtpos+1];
+						//printf("vt %f %f :: ",current->buffer[bufferPos],current->buffer[bufferPos+1]);
+						bufferPos+=2;
+						//Insert vertex normal of indexvn i
+						current->buffer[bufferPos]=tempvn[vnpos]; 
+						current->buffer[bufferPos+1]=tempvn[vnpos+1];
+						current->buffer[bufferPos+2]=tempvn[vnpos+2];
+						//printf("::vn %f %f %f ::\n",current->buffer[bufferPos],current->buffer[bufferPos+1],
+						//	current->buffer[bufferPos+2]);
+						bufferPos+=3;
+					}
+
 				}
 			}
-			//Set up last mesh that was detected
-			setUpMesh(&current,imgPath[currentImg]);
-			current = NULL;
+			//Setup last mesh
+			if(current!=NULL)
+			{
+				printf("BufferELements: %d\n",current->bufferSize);
+				setUpMesh(&current,imgPath[currentImg]);
+			}
+			//Unlink and free data we dont need anymore
+			free(tempv); free(tempvt); free(tempvn);
+			tempv = tempvt = tempvn = NULL;
+			current=NULL;
 		}
-			printf("Closing file\n");
-			fclose(fp);
+		//If first pass has been passed succesfully
+		printf("Closing file\n");
+		fclose(fp);
 
 	}
-
 	if(meshes==NULL)
 		printf("ERROR::%s could not be loaded\n",objFile);
 	else
 	{
 		printf("%s was loaded succesfully. Size:%f MB\n",objFile,getMeshSizeMB(meshes));
 	}
-
 	return meshes;
+}
+
+int findVertexPos(int index)
+{
+	return index * 3;
+}
+
+int findUvPos(int index)
+{
+	return index * 2;
 }
 
 void setUpMesh(MESHBUFFER** mesh,char* imgPath)
@@ -214,37 +233,23 @@ void setUpMesh(MESHBUFFER** mesh,char* imgPath)
 	glGenVertexArrays(1,&m->VAO); //Generate vertex Array
 	glBindVertexArray(m->VAO);//Bind Vertex array
 	//GEN VBO of vertex and link it to the vao
-	glGenBuffers(1,&m->VBO[0]);
-	glBindBuffer(GL_ARRAY_BUFFER,m->VBO[0]);
-	glBufferData(GL_ARRAY_BUFFER,m->v.size*sizeof(float),m->v.buffer,GL_STATIC_DRAW);
-	glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,3*sizeof(float),(void*)0);
+	glGenBuffers(1,&m->VBO);
+	glBindBuffer(GL_ARRAY_BUFFER,m->VBO);
+	glBufferData(GL_ARRAY_BUFFER,m->bufferSize*sizeof(float),m->buffer,GL_STATIC_DRAW);
+	//Enable vertex positions
+	glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,8*sizeof(float),(void*)0);
 	glEnableVertexAttribArray(0);
-
-	//GEN VBO of vertex texture and link it to the vao
-	glGenBuffers(1,&m->VBO[1]);
-	glBindBuffer(GL_ARRAY_BUFFER,m->VBO[1]);
-	glBufferData(GL_ARRAY_BUFFER,m->vt.size*sizeof(float),m->vt.buffer,GL_STATIC_DRAW);
-	glVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE,2*sizeof(float),(void*)0);
+	//Vertex Texture enable
+	glVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE,8*sizeof(float),(void*)(3*sizeof(float)));
 	glEnableVertexAttribArray(1);
-	
-	//GEN VBO of vertex normal and link it to the vao
-	glGenBuffers(1,&m->VBO[2]);
-	glBindBuffer(GL_ARRAY_BUFFER,m->VBO[2]);
-	glBufferData(GL_ARRAY_BUFFER,m->vn.size*sizeof(float),m->vn.buffer,GL_STATIC_DRAW);
-	glVertexAttribPointer(2,3,GL_FLOAT,GL_FALSE,3*sizeof(float),(void*)0);
+	//Vertex Normal Enable
+	glVertexAttribPointer(2,3,GL_FLOAT,GL_FALSE,8*sizeof(float),(void*)(5*sizeof(float)));
 	glEnableVertexAttribArray(2);
-
 	//loadTexture
 	m->texLoaded = loadTexture(imgPath,&m->texture);
-
-	//Gen EBO
-	glGenBuffers(1,&m->EBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,m->EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER,m->indices.size*sizeof(unsigned int),m->indices.buffer,GL_STATIC_DRAW);
-
 	//Unbind so it wont be modified by other vaos
 	glBindVertexArray(0);
-
+	glBindBuffer(GL_ARRAY_BUFFER,0);
 	m->glEnabled = true;
 }
 
@@ -253,15 +258,16 @@ void drawMeshes(MESHBUFFER* meshes,shaderProgram* p)
 	MESHBUFFER* m = meshes;
 	while(m!=NULL)
 	{
-		//Bind to current MESH VAO
-		//Draw current mesh
 		glUseProgram(*p);
 		glBindVertexArray(m->VAO);
-		glActiveTexture(GL_TEXTURE0); //currently only handles one simple texture per mesh
-		glUniform1i(glGetUniformLocation(*p,"texture1"),0);
+		glActiveTexture(GL_TEXTURE0);
+		int location = glGetUniformLocation(*p,"texture1");
+		if(location!=-1)
+			glUniform1i(location,0);
 		glBindTexture(GL_TEXTURE_2D,m->texture);
-		glDrawElements(GL_TRIANGLES,m->indices.size,GL_UNSIGNED_INT,0);//DRAW THE DATA
+		glDrawArrays(GL_TRIANGLES,0,m->bufferVertices);//DRAW THE MESH
 		glBindVertexArray(0); //UNBIND THE VAO
+		glBindTexture(GL_TEXTURE_2D,0);
 		m=m->next;
 	}
 }
@@ -285,8 +291,11 @@ bool loadTexture(char* imgPath,unsigned int *texture)//Currently each mesh can h
 	data = stbi_load(imgPath,&width,&height,&nrChannels,0);
 	if(data)
 	{
-		printf("Image found!!\n");
-		glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,width,height,0,GL_RGB,GL_UNSIGNED_BYTE,data);
+		printf("Image found::nrChanels %d::width %d::height %d\n",nrChannels,width,height);
+		if (nrChannels == 3)
+    			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		else if (nrChannels == 4)
+    			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 		printf("Generating mipmap...\n");
 		glGenerateMipmap(GL_TEXTURE_2D);
 
@@ -309,7 +318,7 @@ float getMeshSizeMB(MESHBUFFER* meshes)
 	MESHBUFFER* current = meshes;
 	while(current!=NULL)
 	{
-		mb += 0.000001f * (sizeof(current->v.buffer)+sizeof(current->vt.buffer)+sizeof(current->vn.buffer)+sizeof(current->indices.buffer));
+		mb += 0.000001f * (sizeof(current->buffer));
 		current=current->next;
 	}
 	return mb;

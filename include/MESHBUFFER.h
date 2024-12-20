@@ -8,29 +8,15 @@
 #include<stdlib.h>
 #include<string.h>
 
-typedef struct
-{
-	float *buffer;//contains the actual buffer
-	unsigned int size;//elements that the buffer has
-}VERTEXBUFFER;
-
-typedef struct
-{
-	unsigned int *buffer;//contains the actual buffer
-	unsigned int size;//elements that the buffer has
-}INDEXBUFFER;
-
 //Buffer of a single object
 typedef struct mesh
 {
-	VERTEXBUFFER v; //Store vertex positions
-	VERTEXBUFFER vn; //Store normals
-	VERTEXBUFFER vt; //Store texture cordinates
-	INDEXBUFFER indices;//Store vertex position indices;
+	float* buffer;
+	int bufferSize; 
+	int bufferVertices; //amount of vertices the buffer jas
 	unsigned int texture; //single texture
-	unsigned int VBO[3];//3 different vbos for each vertex attribute (one for positions,normals,and teexture coordinates)
+	unsigned int VBO;//3 different vbos for each vertex attribute (one for positions,normals,and teexture coordinates)
 	unsigned int VAO;
-	unsigned int EBO;
 	//flags
 	bool texLoaded; //Flag to check if the texture
 	bool glEnabled; //Flag to check if everything of the mesh has been setted up correctly
@@ -44,6 +30,11 @@ void addMesh(MESHBUFFER **meshes,MESHBUFFER *newMesh);
 void setUpMesh(MESHBUFFER** mesh,char* imgPath);
 void deleteMeshes(MESHBUFFER **meshes);
 void drawMeshes(MESHBUFFER* meshes, shaderProgram *p);
+void insertSegment(float**buffer,int* bufferPos,float* v,int vIndex,float* vt,int vtIndex,float* vn,int vnIndex);
+
+int findVertexPos(int index);
+int findUvPos(int index);
+
 
 //Texture loading
 bool loadTexture(char* imgPath,unsigned int *texture);

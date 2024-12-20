@@ -33,7 +33,7 @@ mat4 V;
 mat4 P;
 
 MESHBUFFER *cube;
-char* textures[1] = {"./ASSETS/tex1.png"};
+char* textures[2] = {"./ASSETS/mikutex2.png","./ASSETS/mikutex1.png"};
 
 int main(int argc,char* argv[])
 {
@@ -65,6 +65,8 @@ void mainLoop()
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
+
+	glfwDestroyWindow(window);
 }
 
 void update()//function for writing the logic here
@@ -119,10 +121,12 @@ void init()
 	program = createShaderProgram(shaderSources,types,2);
 
 	//LOAD MESHES
-	cube = loadMeshes("./ASSETS/rubiks.obj",textures);
+	cube = loadMeshes("./ASSETS/miku.obj",textures);
 
 	if(cube==NULL)
 		exit(-1);
+
+	glEnable(GL_DEPTH_TEST);
 
 	//Start window
 	glViewport(0,0,width,height);

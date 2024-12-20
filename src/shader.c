@@ -86,7 +86,7 @@ shaderProgram createShaderProgram(char *shaderSources[],GLenum types[],int n)
 	//Attach the shaders to the shader Program
 	program = glCreateProgram();
 	TShader *current = sources;
-	while(current->next)
+	while(current)
 	{
 		glAttachShader(program,current->source);
 		current = current->next;
