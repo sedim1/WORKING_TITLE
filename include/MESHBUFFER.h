@@ -11,11 +11,11 @@
 //Buffer of a single object
 typedef struct mesh
 {
-	float* buffer;
-	int bufferSize; 
-	int bufferVertices; //amount of vertices the buffer has
+	float* buffer; //Actual buffer of mesh (contains vertices positions, vertex textures and normals)
+	int bufferSize; //Size of actual buffer
+	int bufferVertices; //amount of vertices positions that the buffer has
 	unsigned int texture; //single texture
-	unsigned int VBO;//3 different vbos for each vertex attribute (one for positions,normals,and teexture coordinates)
+	unsigned int VBO;//VAO STRUCTURE IS: (vx,vy,vz,vtu,vtv,vnx,vny,vnz)
 	unsigned int VAO;
 	//flags
 	bool texLoaded; //Flag to check if the texture
