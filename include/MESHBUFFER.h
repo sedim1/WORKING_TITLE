@@ -13,7 +13,7 @@ typedef struct mesh
 {
 	float* buffer;
 	int bufferSize; 
-	int bufferVertices; //amount of vertices the buffer jas
+	int bufferVertices; //amount of vertices the buffer has
 	unsigned int texture; //single texture
 	unsigned int VBO;//3 different vbos for each vertex attribute (one for positions,normals,and teexture coordinates)
 	unsigned int VAO;

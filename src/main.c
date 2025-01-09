@@ -33,7 +33,14 @@ mat4 V;
 mat4 P;
 
 MESHBUFFER *cube;
-char* textures[2] = {"./ASSETS/mikutex2.png","./ASSETS/mikutex1.png"};
+char* textures[6] = {
+	"./ASSETS/shotgun.png",
+	"./ASSETS/hair.png",
+	"./ASSETS/eyes.png",
+	"./ASSETS/head.png",
+	"./ASSETS/jacket.png",
+	"./ASSETS/pants.png",
+};
 
 int main(int argc,char* argv[])
 {
@@ -121,7 +128,7 @@ void init()
 	program = createShaderProgram(shaderSources,types,2);
 
 	//LOAD MESHES
-	cube = loadMeshes("./ASSETS/miku.obj",textures);
+	cube = loadMeshes("./ASSETS/person.obj",textures);
 
 	if(cube==NULL)
 		exit(-1);

@@ -72,6 +72,7 @@ MESHBUFFER* loadMeshes(char* objFile,char** imgPath)
 	int currentImg = 0;
 	char prefix[5];
 	FILE *fp = fopen(objFile,"r");
+	char debugName[50];
 	if(fp)
 	{
 		//First round is to check how much space to create for each buffer
@@ -118,16 +119,20 @@ MESHBUFFER* loadMeshes(char* objFile,char** imgPath)
 					if(current==NULL)//Acces first mesh
 					{
 						printf("Passing to first mesh\n");
+						fscanf(fp,"%s",debugName);
+						printf("o %s\n",debugName);
 						current=meshes;
 					}
 					else
 					{// set up current mesh before accessing the next mesh
 						printf("BufferELements: %d\n",current->bufferSize);
-					 	printf("passing to next mesh\n");
 						setUpMesh(&current,imgPath[currentImg]);
 						printf("Mesh %p is assigned texture: %s\n", (void*)current, imgPath[currentImg]);
+					 	printf("passing to next mesh\n");
 						current=current->next;
 						currentImg++;
+						fscanf(fp,"%s",debugName);
+						printf("o %s\n",debugName);
 					}
 					printf("Buffer for VBO:\n");
 					bufferPos = 0;
@@ -159,7 +164,7 @@ MESHBUFFER* loadMeshes(char* objFile,char** imgPath)
 					fscanf(fp,"%d/%d/%d %d/%d/%d %d/%d/%d",&indexv[0],&indexvt[0],&indexvn[0],
 							&indexv[1],&indexvt[1],&indexvn[1],&indexv[2],&indexvt[2],&indexvn[2]);
 					//printf("f %d/%d/%d %d/%d/%d %d/%d/%d\n",indexv[0],indexvt[0],indexvn[0],
-						//  	indexv[1],indexvt[1],indexvn[1],indexv[2],indexvt[2],indexvn[2]);
+						  	//indexv[1],indexvt[1],indexvn[1],indexv[2],indexvt[2],indexvn[2]);
 					for(int i = 0; i < 3; i++)
 					{
 						current->bufferVertices++;
@@ -172,20 +177,20 @@ MESHBUFFER* loadMeshes(char* objFile,char** imgPath)
 						current->buffer[bufferPos]=tempv[vpos]; 
 						current->buffer[bufferPos+1]=tempv[vpos+1];
 						current->buffer[bufferPos+2]=tempv[vpos+2];
-						//printf("::v %f %f %f :: ",current->buffer[bufferPos],current->buffer[bufferPos+1],
-							//	current->buffer[bufferPos+2]);
+						printf("::v %f %f %f :: ",current->buffer[bufferPos],current->buffer[bufferPos+1],
+								current->buffer[bufferPos+2]);
 						bufferPos+=3;
 						//Insert vertex texture of indexvt i
 						current->buffer[bufferPos]=tempvt[vtpos];
 						current->buffer[bufferPos+1]=tempvt[vtpos+1];
-						//printf("vt %f %f :: ",current->buffer[bufferPos],current->buffer[bufferPos+1]);
+						printf("vt %f %f :: ",current->buffer[bufferPos],current->buffer[bufferPos+1]);
 						bufferPos+=2;
 						//Insert vertex normal of indexvn i
 						current->buffer[bufferPos]=tempvn[vnpos]; 
 						current->buffer[bufferPos+1]=tempvn[vnpos+1];
 						current->buffer[bufferPos+2]=tempvn[vnpos+2];
-						//printf("::vn %f %f %f ::\n",current->buffer[bufferPos],current->buffer[bufferPos+1],
-						//	current->buffer[bufferPos+2]);
+						printf("::vn %f %f %f ::\n",current->buffer[bufferPos],current->buffer[bufferPos+1],
+							current->buffer[bufferPos+2]);
 						bufferPos+=3;
 					}
 
