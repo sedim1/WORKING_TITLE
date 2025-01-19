@@ -5,12 +5,12 @@ void startTime(DELTATIME* dT)
 	dT->timeStart = glfwGetTime();
 }
 
-void startEnd(DELTATIME* dT)
+void endTime(DELTATIME* dT)
 {
 	dT->timeEnd = glfwGetTime();
 }
 
-void calculateDeltatime(DELTATIME* dT)
+void calculateDeltaTime(DELTATIME* dT)
 {
 	dT->delta = dT->timeEnd - dT->timeStart;
 }
