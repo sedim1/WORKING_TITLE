@@ -7,6 +7,7 @@
 #include "radians.h"
 #include "camera.h"
 #include "MESHBUFFER.h"
+#include "DELTATIME.h"
 
 void resizeWindow(GLFWwindow* win,int w, int h);
 void init();
@@ -15,6 +16,10 @@ void mainLoop();
 void display();
 void update();
 void end();
+
+DELTATIME deltaTime;
+int FPS=0;
+
 
 int width = 800;
 int height = 600;
@@ -57,17 +62,33 @@ void resizeWindow(GLFWwindow *win,int w, int h)
 
 void mainLoop()
 {
+	int frames=0;
+
 	while(!glfwWindowShouldClose(window))
 	{
+		
 		//Clear the screen to this color
 		glClearColor(0.4f, 0.4f, 0.4f, 1.0f);
         	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 		if(glfwGetKey(window,GLFW_KEY_ESCAPE)==GLFW_PRESS)
 			glfwSetWindowShouldClose(window,true);
+
+		startTime(&deltaTime);
 		//Process game logic here
 		update();
 		//Render stuff here
 		display();
+		endTime(&deltaTime);
+		calculateDeltaTime(&deltaTime);
+		frames++;
+		if(deltaTime.delta > 1.0f)
+		{
+			//UPDATE FPS
+			FPS = frames;
+			frames=0;
+			printf("FPS: %d\n",FPS);
+		}
 		//Swap buffers and process events
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -153,6 +174,11 @@ void init()
 	//start matrices
 	updateViewMatrix(&camera,V);
 	glm_perspective(degToRad(&(camera.fov)),(float)width/(float)height,0.1f,100.0f,P);
+
+	//Set Global Delta time
+	deltaTime.timeStart = 0.0f;
+	deltaTime.timeStart = 0.0f;
+	deltaTime.delta = 0.0f;
 }
 
 void end()
