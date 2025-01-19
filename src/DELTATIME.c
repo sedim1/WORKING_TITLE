@@ -1,16 +1,16 @@
 #include "DELTATIME.h"
 
-void startTime(DELTATIME* dT)
+void countTime(DELTATIME* dT)
 {
-	dT->timeStart = glfwGetTime();
+	dT->currentTime = glfwGetTime();
 }
 
-void endTime(DELTATIME* dT)
+void saveLastTime(DELTATIME* dT)
 {
-	dT->timeEnd = glfwGetTime();
+	dT->lastTime=dT->currentTime;
 }
 
-void calculateDeltaTime(DELTATIME* dT)
+void updateDeltaTime(DELTATIME* dT)
 {
-	dT->delta = dT->timeEnd - dT->timeStart;
+	dT->delta = dT->currentTime - dT->lastTime;
 }

@@ -4,13 +4,13 @@
 #include <GLFW/glfw3.h>
 
 typedef struct{
-	double timeStart;
-	double timeEnd;
+	double currentTime;
+	double lastTime;
 	double delta;
 }DELTATIME; //USED FOR USING DELTATIME GLOBALLY OR LOCALLY
 
-void startTime(DELTATIME* dT); //SETS TIME STARTS IN SECONDS
-void endTime(DELTATIME *dT); //SETS TIME END IN SECONDS
-void calculateDeltaTime(DELTATIME *dT); //CALCULATES DELTATIME IN SECONDS
+void countTime(DELTATIME* dT);
+void saveLastTime(DELTATIME* dT);
+void updateDeltaTime(DELTATIME *dT); //CALCULATES DELTATIME IN SECONDS
 
 #endif

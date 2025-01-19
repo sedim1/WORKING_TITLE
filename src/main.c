@@ -74,19 +74,19 @@ void mainLoop()
 		if(glfwGetKey(window,GLFW_KEY_ESCAPE)==GLFW_PRESS)
 			glfwSetWindowShouldClose(window,true);
 
-		startTime(&deltaTime);
+		countTime(&deltaTime);
 		//Process game logic here
 		update();
 		//Render stuff here
 		display();
-		endTime(&deltaTime);
-		calculateDeltaTime(&deltaTime);
+		updateDeltaTime(&deltaTime);
 		frames++;
 		if(deltaTime.delta > 1.0f)
 		{
 			//UPDATE FPS
 			FPS = frames;
 			frames=0;
+			saveLastTime(&deltaTime);
 			printf("FPS: %d\n",FPS);
 		}
 		//Swap buffers and process events
@@ -176,8 +176,8 @@ void init()
 	glm_perspective(degToRad(&(camera.fov)),(float)width/(float)height,0.1f,100.0f,P);
 
 	//Set Global Delta time
-	deltaTime.timeStart = 0.0f;
-	deltaTime.timeStart = 0.0f;
+	deltaTime.currentTime = 0.0f;
+	deltaTime.lastTime = 0.0f;
 	deltaTime.delta = 0.0f;
 }
 
