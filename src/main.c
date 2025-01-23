@@ -7,6 +7,7 @@
 #include "radians.h"
 #include "camera.h"
 #include "MESHBUFFER.h"
+#include "ENTITIES.h"
 #include "DELTATIME.h"
 
 void resizeWindow(GLFWwindow* win,int w, int h);
@@ -37,15 +38,7 @@ CAMERA camera;
 mat4 V;
 mat4 P;
 
-MESHBUFFER *cube;
-char* textures[6] = {
-	"./ASSETS/shotgun.png",
-	"./ASSETS/hair.png",
-	"./ASSETS/eyes.png",
-	"./ASSETS/head.png",
-	"./ASSETS/jacket.png",
-	"./ASSETS/pants.png",
-};
+ENTITY3D entity;
 
 int main(int argc,char* argv[])
 {
@@ -64,6 +57,7 @@ void mainLoop()
 {
 	int frames=0;
 
+	printf("Openinf window...");
 	while(!glfwWindowShouldClose(window))
 	{
 		
@@ -115,7 +109,7 @@ void display()
 {
 	//Render stuff here
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	drawMeshes(cube,&program);
+	drawMeshes(entity.model,&program);
 }
 
 void init()
@@ -148,11 +142,12 @@ void init()
 	//LOAD SHADERS
 	program = createShaderProgram(shaderSources,types,2);
 
-	//LOAD MESHES
-	cube = loadMeshes("./ASSETS/person.obj",textures);
+	//LOAD ENTITIES
+	entity = createEntity3D();
+	entitySetModel3D(&entity,"ENTITIES/miku.model");
 
-	if(cube==NULL)
-		exit(-1);
+	if(entity.model==NULL)
+		printf("MODEL WAS NOT LOADED");
 
 	glEnable(GL_DEPTH_TEST);
 
@@ -184,6 +179,6 @@ void init()
 void end()
 {
 	deleteShaderProgram(&program);
-	deleteMeshes(&cube);
+	entityClearModel3D(&entity);
 	glfwTerminate();
 }

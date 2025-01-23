@@ -177,20 +177,20 @@ MESHBUFFER* loadMeshes(char* objFile,char** imgPath)
 						current->buffer[bufferPos]=tempv[vpos]; 
 						current->buffer[bufferPos+1]=tempv[vpos+1];
 						current->buffer[bufferPos+2]=tempv[vpos+2];
-						printf("::v %f %f %f :: ",current->buffer[bufferPos],current->buffer[bufferPos+1],
-								current->buffer[bufferPos+2]);
+						//printf("::v %f %f %f :: ",current->buffer[bufferPos],current->buffer[bufferPos+1],
+							//	current->buffer[bufferPos+2]);
 						bufferPos+=3;
 						//Insert vertex texture of indexvt i
 						current->buffer[bufferPos]=tempvt[vtpos];
 						current->buffer[bufferPos+1]=tempvt[vtpos+1];
-						printf("vt %f %f :: ",current->buffer[bufferPos],current->buffer[bufferPos+1]);
+						//printf("vt %f %f :: ",current->buffer[bufferPos],current->buffer[bufferPos+1]);
 						bufferPos+=2;
 						//Insert vertex normal of indexvn i
 						current->buffer[bufferPos]=tempvn[vnpos]; 
 						current->buffer[bufferPos+1]=tempvn[vnpos+1];
 						current->buffer[bufferPos+2]=tempvn[vnpos+2];
-						printf("::vn %f %f %f ::\n",current->buffer[bufferPos],current->buffer[bufferPos+1],
-							current->buffer[bufferPos+2]);
+						//printf("::vn %f %f %f ::\n",current->buffer[bufferPos],current->buffer[bufferPos+1],
+						//	current->buffer[bufferPos+2]);
 						bufferPos+=3;
 					}
 
