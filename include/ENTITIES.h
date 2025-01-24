@@ -7,6 +7,7 @@
 #include"MESHBUFFER.h"
 #include"OBJTRANSFORMATIONS.h"
 #include"STRARRAY.h"
+#include"shader.h"
 
 typedef struct
 {
@@ -17,5 +18,6 @@ typedef struct
 ENTITY3D createEntity3D();
 void entitySetModel3D(ENTITY3D* entity,char* modelPath); //set 3d model to obj
 void entityClearModel3D(ENTITY3D* entity);
+void drawEntity(ENTITY3D* entity,shaderProgram* program);
 
 #endif

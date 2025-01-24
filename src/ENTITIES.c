@@ -38,6 +38,14 @@ void entitySetModel3D(ENTITY3D* entity,char* modelPath)
 		}
 }
 
+void drawEntity(ENTITY3D* entity,shaderProgram* program)
+{
+	//Update model matrix according to its spatial atributes and to the shader
+	updateModelMatrix(&(entity->properties));
+	updateMatrix4(program,entity->properties.model,"model");
+	drawMeshes(entity->model,program);
+}
+
 ENTITY3D createEntity3D()
 {
 	ENTITY3D entity;

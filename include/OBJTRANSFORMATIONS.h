@@ -12,9 +12,10 @@ typedef struct
 	float pitch;//ANGLE X
 	float yaw;//ANGLE Y
 	float roll;//ANGLE Z
+	mat4 model;
 }SPATIAL_ATTRIBUTES;
 
 SPATIAL_ATTRIBUTES spatialAttributes();//Constructor
-void manipulateAttributes(SPATIAL_ATTRIBUTES* A, mat4 modelMatrix);
+void updateModelMatrix(SPATIAL_ATTRIBUTES* A);
 
 #endif

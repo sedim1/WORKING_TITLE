@@ -6,7 +6,6 @@
 #include<stdbool.h>
 #include<stdio.h>
 #include<stdlib.h>
-#include<string.h>
 
 //Buffer of a single object
 typedef struct mesh

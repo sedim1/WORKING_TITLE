@@ -38,7 +38,9 @@ CAMERA camera;
 mat4 V;
 mat4 P;
 
-ENTITY3D entity;
+ENTITY3D plane;
+ENTITY3D entity1;
+ENTITY3D entity2;
 
 int main(int argc,char* argv[])
 {
@@ -57,7 +59,6 @@ void mainLoop()
 {
 	int frames=0;
 
-	printf("Openinf window...");
 	while(!glfwWindowShouldClose(window))
 	{
 		
@@ -96,20 +97,23 @@ void update()//function for writing the logic here
 	cameraControl(&camera,window);
 
 	glUseProgram(program);
-	
+
 	//Update lookat camera
 	updateViewMatrix(&camera,V);
-	
+
+
 	//Update matrices
 	updateMatrix4(&program,P,"proj");
 	updateMatrix4(&program,V,"view");
 }
 
 void display()
-{
+{ 
 	//Render stuff here
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	drawMeshes(entity.model,&program);
+	drawEntity(&plane,&program);
+	drawEntity(&entity1,&program);
+	drawEntity(&entity2,&program);
 }
 
 void init()
@@ -143,12 +147,21 @@ void init()
 	program = createShaderProgram(shaderSources,types,2);
 
 	//LOAD ENTITIES
-	entity = createEntity3D();
-	entitySetModel3D(&entity,"ENTITIES/miku.model");
+	plane = createEntity3D();
+	entitySetModel3D(&plane,"ENTITIES/plane.model");
+	plane.properties.position[1]=-3.0f;
 
-	if(entity.model==NULL)
-		printf("MODEL WAS NOT LOADED");
+	entity1 = createEntity3D();
+	entitySetModel3D(&entity1,"ENTITIES/miku.model");
+	entity1.properties.position[1]=3.0f;
+	entity1.properties.position[1]=-2.5f;
+	entity1.properties.position[2]=-3.0f;
 
+	entity2 = createEntity3D();
+	entitySetModel3D(&entity2,"ENTITIES/zombie.model");
+	entity2.properties.position[0]=-5.0f;
+	entity2.properties.position[1]=-2.0f;
+	
 	glEnable(GL_DEPTH_TEST);
 
 	//Start window
@@ -179,6 +192,8 @@ void init()
 void end()
 {
 	deleteShaderProgram(&program);
-	entityClearModel3D(&entity);
+	entityClearModel3D(&plane);
+	entityClearModel3D(&entity1);
+	entityClearModel3D(&entity2);
 	glfwTerminate();
 }
