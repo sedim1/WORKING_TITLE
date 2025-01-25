@@ -17,9 +17,11 @@ void addString(STR_ARRAY* array, char* str)
     }
     int length = strlen(str) + 1; // Include space for the null terminator
     array->strings[array->size - 1] = (char*)malloc(sizeof(char) * length);
+
     if (array->strings[array->size - 1] != NULL) {
         strncpy(array->strings[array->size - 1], str, length);
     }
+
 }
 
 void eraseStrings(STR_ARRAY* array)
