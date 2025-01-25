@@ -3,10 +3,8 @@
 char* loadShaderFile(char *filePath)
 {
 	char *shader = NULL;
-
 	//OPEN FILE
 	FILE *fp = fopen(filePath,"r");
-
 	if(fp)
 	{
 		//Get the size of the shader file
@@ -21,10 +19,8 @@ char* loadShaderFile(char *filePath)
 		fread(shader,1,size,fp);
 		shader[size] = '\0';
 		//printf("ShaderFile Loaded:\n%s",shader);
-
 		fclose(fp);
 	}
-
 	return shader;
 }
 

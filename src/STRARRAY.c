@@ -30,3 +30,21 @@ void eraseStrings(STR_ARRAY* array)
     array->strings = NULL; // Avoid dangling pointer
     array->size = 0;       // Reset the size
 }
+
+char* extractFileName(char* filePath)
+{
+	char* name=NULL;
+	int length = 0;
+	int pos = 0;
+	for(int i = 0; i < strlen(filePath);i++)
+	{
+		if(filePath[i]=='/')
+			pos=i;
+	}
+	length = (strlen(filePath) - pos) + 1;
+	name=(char*)malloc(sizeof(char)*length);
+	if(name==NULL)
+		return NULL;
+	strncpy(name,(filePath + pos),length);
+	return name;
+}

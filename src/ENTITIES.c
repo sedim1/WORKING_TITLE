@@ -28,7 +28,8 @@ void entitySetModel3D(ENTITY3D* entity,char* modelPath)
 			fclose(fp);
 		
 			//Debug information
-			printf("MODEL: %s\n",model);//Model that was loaded
+			entity->id=extractFileName(model);
+			printf("MODEL: %s\n",entity->id);//Model that was loaded
 			for(int i = 0; i < textures.size;i++)
 			{
 				printf("TEXTURE: %s\n",textures.strings[i]);//TEXTURE THAT WERE READEN
@@ -57,5 +58,6 @@ ENTITY3D createEntity3D()
 void entityClearModel3D(ENTITY3D* entity)
 {
 	deleteMeshes(&(entity->model));
+	free(entity->id);
 }
 

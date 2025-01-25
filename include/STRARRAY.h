@@ -11,5 +11,6 @@ typedef struct{
 
 void addString(STR_ARRAY* array,char* str);
 void eraseStrings(STR_ARRAY* array);
+char* extractFileName(char* filePath);
 
 #endif

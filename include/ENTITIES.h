@@ -9,8 +9,11 @@
 #include"STRARRAY.h"
 #include"shader.h"
 
+#define MAX 50
+
 typedef struct
 {
+	char* id;
 	MESHBUFFER* model; //Meshes forming the model
 	SPATIAL_ATTRIBUTES properties; //3D space properties
 }ENTITY3D;
