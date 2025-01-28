@@ -6,18 +6,20 @@
 #include <cglm/cglm.h>
 #include "radians.h"
 #include "camera.h"
-#include "MESHBUFFER.h"
 #include "ENTITIES.h"
+#include "PHYSICS.h"
 #include "DELTATIME.h"
 
 void resizeWindow(GLFWwindow* win,int w, int h);
 void init();
+void loadWorld();
 void display();
 void mainLoop();
 void display();
 void update();
 void end();
 
+float timeAccumulator = 0.0f;
 DELTATIME deltaTime;
 int FPS=0;
 
@@ -38,9 +40,12 @@ CAMERA camera;
 mat4 V;
 mat4 P;
 
+float gravity = -0.001f;
+
 ENTITY3D plane;
 ENTITY3D entity1;
-ENTITY3D entity2;
+PHYSICSOBJ object;
+PHYSICSWORLD* world;
 
 int main(int argc,char* argv[])
 {
@@ -98,6 +103,10 @@ void update()//function for writing the logic here
 
 	glUseProgram(program);
 
+	physicsProcessWorld(world,deltaTime.delta,gravity);
+
+	printf("VELOCITY %f %f %f\n",object.velocity[0],object.velocity[1],object.velocity[2]);
+
 	//Update lookat camera
 	updateViewMatrix(&camera,V);
 
@@ -113,7 +122,6 @@ void display()
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	drawEntity(&plane,&program);
 	drawEntity(&entity1,&program);
-	drawEntity(&entity2,&program);
 }
 
 void init()
@@ -146,21 +154,7 @@ void init()
 	//LOAD SHADERS
 	program = createShaderProgram(shaderSources,types,2);
 
-	//LOAD ENTITIES
-	plane = createEntity3D();
-	entitySetModel3D(&plane,"ENTITIES/plane.model");
-	plane.properties.position[1]=-3.0f;
-
-	entity1 = createEntity3D();
-	entitySetModel3D(&entity1,"ENTITIES/miku.model");
-	entity1.properties.position[1]=3.0f;
-	entity1.properties.position[1]=-2.5f;
-	entity1.properties.position[2]=-3.0f;
-
-	entity2 = createEntity3D();
-	entitySetModel3D(&entity2,"ENTITIES/zombie.model");
-	entity2.properties.position[0]=-5.0f;
-	entity2.properties.position[1]=-2.0f;
+	loadWorld();
 	
 	glEnable(GL_DEPTH_TEST);
 
@@ -171,7 +165,7 @@ void init()
 	glfwSetFramebufferSizeCallback(window,resizeWindow);
 
 	//start camera
-	camera.cameraPos[0]=0.0f; camera.cameraPos[1]=0.0f; camera.cameraPos[2]=3.0f;
+	camera.cameraPos[0]=0.0f; camera.cameraPos[1]=0.0f; camera.cameraPos[2]=8.0f;
 	camera.cameraFront[0]=0.0f; camera.cameraFront[1]=0.0f; camera.cameraFront[2]= -1.0f;
 	camera.cameraUp[0]=0.0f; camera.cameraUp[1]=1.0f; camera.cameraUp[2]=0.0f;
 	camera.pitch = 0.0f;
@@ -194,6 +188,23 @@ void end()
 	deleteShaderProgram(&program);
 	entityClearModel3D(&plane);
 	entityClearModel3D(&entity1);
-	entityClearModel3D(&entity2);
+	clearWorld(&world);
 	glfwTerminate();
+}
+
+void loadWorld()
+{
+	//LOAD ENTITIES
+	plane = createEntity3D();
+	entitySetModel3D(&plane,"ENTITIES/plane.model");
+	plane.properties.position[1]=-78.0f;
+
+
+	entity1 = createEntity3D();
+	entitySetModel3D(&entity1,"ENTITIES/cube.model");
+	object.entity= &entity1;
+	object.type = RIGIDBODY;
+	object.mass = 0.1f;
+
+	addObjectToWorld(&world,&object);
 }
