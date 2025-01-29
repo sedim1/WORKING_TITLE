@@ -1,4 +1,5 @@
 #include "PHYSICS.h"
+#define MAX_FALL_SPEED 10
 
 void physicsProcessWorld(PHYSICSWORLD* world,float deltaTime, float gravity)
 {
@@ -10,9 +11,9 @@ void physicsProcessWorld(PHYSICSWORLD* world,float deltaTime, float gravity)
 		w->object->Fy = w->object->mass * gravity;
 
 		if(w->object->mass>0.0f)
-			w->object->velocity[1] += w->object->velocity[1] + (w->object->Fy/w->object->mass) * deltaTime;
-		glm_vec3_scale(w->object->velocity,deltaTime,velocityDelta);
-		glm_vec3_add(w->object->entity->properties.position,velocityDelta,w->object->entity->properties.position);
+			w->object->velocity[1] += (w->object->Fy/w->object->mass) * deltaTime;
+
+		glm_vec3_add(w->object->entity->properties.position,w->object->velocity,w->object->entity->properties.position);
 		w = w->next;
 	}
 }

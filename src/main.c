@@ -19,7 +19,6 @@ void display();
 void update();
 void end();
 
-float timeAccumulator = 0.0f;
 DELTATIME deltaTime;
 int FPS=0;
 
@@ -40,7 +39,7 @@ CAMERA camera;
 mat4 V;
 mat4 P;
 
-float gravity = -0.001f;
+float gravity = -0.0081f;
 
 ENTITY3D plane;
 ENTITY3D entity1;
@@ -63,6 +62,9 @@ void resizeWindow(GLFWwindow *win,int w, int h)
 void mainLoop()
 {
 	int frames=0;
+	float timeAccumulator = 0.0f;
+	float dT = 1000/30;
+	float timeSimulatedThisIteration=0.0f;
 
 	while(!glfwWindowShouldClose(window))
 	{
@@ -77,6 +79,7 @@ void mainLoop()
 		countTime(&deltaTime);
 		//Process game logic here
 		update();
+
 		//Render stuff here
 		display();
 		updateDeltaTime(&deltaTime);
@@ -89,6 +92,7 @@ void mainLoop()
 			saveLastTime(&deltaTime);
 			printf("FPS: %d\n",FPS);
 		}
+
 		//Swap buffers and process events
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -102,15 +106,8 @@ void update()//function for writing the logic here
 	cameraControl(&camera,window);
 
 	glUseProgram(program);
-
-	physicsProcessWorld(world,deltaTime.delta,gravity);
-
-	printf("VELOCITY %f %f %f\n",object.velocity[0],object.velocity[1],object.velocity[2]);
-
 	//Update lookat camera
 	updateViewMatrix(&camera,V);
-
-
 	//Update matrices
 	updateMatrix4(&program,P,"proj");
 	updateMatrix4(&program,V,"view");
@@ -204,7 +201,7 @@ void loadWorld()
 	entitySetModel3D(&entity1,"ENTITIES/cube.model");
 	object.entity= &entity1;
 	object.type = RIGIDBODY;
-	object.mass = 0.1f;
+	object.mass = 0.00000000001f;
 
 	addObjectToWorld(&world,&object);
 }
