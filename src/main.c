@@ -16,10 +16,10 @@ void loadWorld();
 void display();
 void mainLoop();
 void display();
-void update();
+void update(float steps);
 void end();
 
-DELTATIME deltaTime;
+DELTATIME deltaTimeFPS;
 int FPS=0;
 
 
@@ -39,7 +39,7 @@ CAMERA camera;
 mat4 V;
 mat4 P;
 
-float gravity = -0.0081f;
+float gravity = -5.81f;
 
 ENTITY3D plane;
 ENTITY3D entity1;
@@ -62,34 +62,40 @@ void resizeWindow(GLFWwindow *win,int w, int h)
 void mainLoop()
 {
 	int frames=0;
-	float timeAccumulator = 0.0f;
-	float dT = 1000/30;
-	float timeSimulatedThisIteration=0.0f;
+	float tAccumulator = 0.0;
+	float tSlice = 1.0f/60.0f;//Time we define here, the time we want to be elapsed between updates
+	float steps = 1.0f/1000.0f;
+	DELTATIME loopCycle = {0.0f,0.0f,0.0f};
 
 	while(!glfwWindowShouldClose(window))
 	{
-		
+		updateDeltaTime(&loopCycle); //For handling the game states
+		loopCycle.lastTime+=loopCycle.delta; //Last update
+		tAccumulator+=loopCycle.delta;
+		countTime(&loopCycle);
+		countTime(&deltaTimeFPS);//Start countingtime for FPS
 		//Clear the screen to this color
 		glClearColor(0.4f, 0.4f, 0.4f, 1.0f);
         	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 		if(glfwGetKey(window,GLFW_KEY_ESCAPE)==GLFW_PRESS)
 			glfwSetWindowShouldClose(window,true);
-
-		countTime(&deltaTime);
-		//Process game logic here
-		update();
+		//Update game states and logic here
+		while(tAccumulator > tSlice)
+		{
+			update(steps);
+			tAccumulator -= tSlice;
+		}
 
 		//Render stuff here
 		display();
-		updateDeltaTime(&deltaTime);
+		updateDeltaTime(&deltaTimeFPS);//Update the delta time for FPS
 		frames++;
-		if(deltaTime.delta > 1.0f)
+		if(deltaTimeFPS.delta > 1.0f)
 		{
 			//UPDATE FPS
 			FPS = frames;
 			frames=0;
-			saveLastTime(&deltaTime);
+			saveLastTime(&deltaTimeFPS);
 			printf("FPS: %d\n",FPS);
 		}
 
@@ -101,9 +107,11 @@ void mainLoop()
 	glfwDestroyWindow(window);
 }
 
-void update()//function for writing the logic here
+void update(float steps)//function for writing the logic here
 {
 	cameraControl(&camera,window);
+
+	physicsProcessWorld(world,steps,gravity);
 
 	glUseProgram(program);
 	//Update lookat camera
@@ -175,9 +183,9 @@ void init()
 	glm_perspective(degToRad(&(camera.fov)),(float)width/(float)height,0.1f,100.0f,P);
 
 	//Set Global Delta time
-	deltaTime.currentTime = 0.0f;
-	deltaTime.lastTime = 0.0f;
-	deltaTime.delta = 0.0f;
+	deltaTimeFPS.currentTime = 0.0f;
+	deltaTimeFPS.lastTime = 0.0f;
+	deltaTimeFPS.delta = 0.0f;
 }
 
 void end()
@@ -201,7 +209,7 @@ void loadWorld()
 	entitySetModel3D(&entity1,"ENTITIES/cube.model");
 	object.entity= &entity1;
 	object.type = RIGIDBODY;
-	object.mass = 0.00000000001f;
-
+	object.mass = 1.0f;
+	object.applyGravity = true;
 	addObjectToWorld(&world,&object);
 }

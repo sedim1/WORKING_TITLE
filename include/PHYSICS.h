@@ -3,13 +3,13 @@
 
 #include "ENTITIES.h"
 #include <cglm/cglm.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
 
 enum BODYTYPE{
-	STATICBODY, //Can interact with other entities, but wont affect the entity itself
-	RIGIDBODY, //Can be affected by other entities and interact - will be run by general code
-	KINEMATIC_BODY //Can use functions of physics engine, but will be more controlled by specific code
+	STATICBODY, //
+	RIGIDBODY, //WILL BE AFFECTED BY GRAVITY AND FORCES
 };
 
 enum COLLIDERTYPE{
@@ -22,10 +22,11 @@ typedef struct
 {
 	ENTITY3D* entity;
 	float mass;
-	float Fy;
-	float Fx;
+	vec3 forces;
 	vec3 velocity;
+	bool applyGravity;
 	enum BODYTYPE type;
+
 }PHYSICSOBJ; //These are not dynamically allocated, they already exist on memory
 
 typedef struct phworld

@@ -7,12 +7,15 @@ void physicsProcessWorld(PHYSICSWORLD* world,float deltaTime, float gravity)
 	vec3 velocityDelta;
 	while(w!=NULL)
 	{
-		//Apply gravity to objects
-		w->object->Fy = w->object->mass * gravity;
-
-		if(w->object->mass>0.0f)
-			w->object->velocity[1] += (w->object->Fy/w->object->mass) * deltaTime;
-
+		if(w->object->type==RIGIDBODY)
+		{
+			//Apply gravity to objects
+			if(w->object->applyGravity)
+				w->object->velocity[1] += gravity * deltaTime; //Applying gravity to object
+			else
+				w->object->velocity[1] = 0;
+		}
+		//Update the position according to the velocity of the object
 		glm_vec3_add(w->object->entity->properties.position,w->object->velocity,w->object->entity->properties.position);
 		w = w->next;
 	}
@@ -42,6 +45,7 @@ PHYSICSWORLD* instanceObject(PHYSICSOBJ* physicsObject)
 	{
 		obj->object=physicsObject;
 		glm_vec3_zero(obj->object->velocity);
+		glm_vec3_zero(obj->object->forces);
 		obj->next=NULL;
 	}
 
