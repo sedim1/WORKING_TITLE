@@ -30,6 +30,7 @@ typedef struct{
 
 typedef struct{
 	float radious;
+
 }SPHERE_COLLIDER;
 
 typedef struct{
