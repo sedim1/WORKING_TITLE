@@ -10,7 +10,8 @@
 enum BODYTYPE{
 	STATICBODY, //WILL NOT BE AFFECTED BY GRAVITY AND FORCE
 	RIGIDBODY, //WILL BE AFFECTED BY GRAVITY AND FORCE
-	KINEMATICBODY, //WILL BE CONTROLLED VIA CODE
+	KINEMATIC, //GENERAL ENTITIES - WILL BE CONTROLLED VIA CODE
+	CHARACTER, //TO DETECT MORE SPECIFIC ENTITIES
 };
 
 enum COLLIDERSHAPE{
@@ -20,12 +21,8 @@ enum COLLIDERSHAPE{
 };
 
 typedef struct{
-	float MinX;
-	float MaxX;
-	float MinY;
-	float MaxY;
-	float MinZ;
-	float MaxZ;
+	vec3 min;
+	vec3 max;
 }BOX_COLLIDER;
 
 typedef struct{
@@ -35,12 +32,14 @@ typedef struct{
 
 typedef struct{
 	float radious;
-	float height;
+	float minY;
+	float maxY;
 }CAPSULE_COLLIDER;
 
 typedef struct{
-	ENTITY3D* entity; //Follow the entity the collider is attached to;
+	ENTITY3D* entity; //Follow the entity the collider is attached to 
 	void* shape;
+	bool isEnabled;
 	enum COLLIDERSHAPE type;
 }COLLIDER;
 
@@ -65,5 +64,11 @@ void physicsProcessWorld(PHYSICSWORLD* world,float deltaTime,float gravity);//
 void addObjectToWorld(PHYSICSWORLD** world,PHYSICSOBJ* physicsObject);//
 void clearWorld(PHYSICSWORLD** world);//
 PHYSICSWORLD* instanceObject(PHYSICSOBJ* physicsObject); //creates the physic object object in the world
+
+//COLLISION DETECTION FUNCTIONS
+bool intersectsAABB(COLLIDER* A,COLLIDER* B);
+
+
+
 
 #endif
