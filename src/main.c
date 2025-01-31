@@ -6,6 +6,7 @@
 #include <cglm/cglm.h>
 #include "radians.h"
 #include "camera.h"
+#include "OBJTRANSFORMATIONS.h"
 #include "ENTITIES.h"
 #include "PHYSICS.h"
 #include "DELTATIME.h"

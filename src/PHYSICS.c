@@ -9,14 +9,18 @@ void physicsProcessWorld(PHYSICSWORLD* world,float deltaTime, float gravity)
 	{
 		if(w->object->type==RIGIDBODY)
 		{
-			//Apply gravity to objects
+			//Apply gravity to objects - Step 1
 			if(w->object->applyGravity)
 				w->object->velocity[1] += gravity * deltaTime; //Applying gravity to object
 			else
 				w->object->velocity[1] = 0;
+			//Run specific code defined by the KINEMATIC BODY Step 1.1
+
 		}
-		//Update the position according to the velocity of the object
+		//Update the position according to the velocity of the object - Step 2
 		glm_vec3_add(w->object->entity->properties.position,w->object->velocity,w->object->entity->properties.position);
+
+		//Collision detection
 		w = w->next;
 	}
 }
